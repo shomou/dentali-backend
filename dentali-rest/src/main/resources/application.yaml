@@ -1,0 +1,16 @@
+server:
+  port: 8090
+spring:
+ application:
+  name: dentali-rest
+
+ # Conexión a PostgreSQL (contenedor dentali-db)
+ datasource:
+  url: jdbc:postgresql://localhost:5440/dentali
+  username: dentali
+  password: dentali_dev
+
+ # Hibernate No crea tablas: solo verifica que coincidan con las entidades
+ jpa:
+  hibernate:
+    ddl-auto: validate

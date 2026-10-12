@@ -1,0 +1,15 @@
+services:
+ db:
+  image: postgres:18
+  container_name: dentali_db
+  environment:
+   POSTGRES_DB: dentali
+   POSTGRES_USER: dentali
+   POSTGRES_PASSWORD: dentali_dev
+  ports:
+   - "5440:5432"
+  volumes:
+   - dentali-data:/var/lib/postgresql
+
+volumes:
+ dentali-data:
