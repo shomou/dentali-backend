@@ -12,5 +12,6 @@ spring:
 
  # Hibernate No crea tablas: solo verifica que coincidan con las entidades
  jpa:
+  open-in-view: false
   hibernate:
     ddl-auto: validate
