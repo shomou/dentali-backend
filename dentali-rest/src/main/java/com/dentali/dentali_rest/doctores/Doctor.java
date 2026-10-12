@@ -1,12 +1,17 @@
 package com.dentali.dentali_rest.doctores;
 
 import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
+import com.dentali.dentali_rest.especialidades.Especialidad;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,6 +19,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -66,5 +72,17 @@ public class Doctor {
     @UpdateTimestamp
     @Column(name = "fecha_actualizacion")
     private OffsetDateTime fechaActualizacion;
+
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<DoctorEspecialidad> especialidades = new HashSet<>();
+
+
+    public void agregarEspecialidad(Especialidad especialidad, String cedulaEspecialidad) {
+        especialidades.add(new DoctorEspecialidad(this, especialidad, cedulaEspecialidad));
+    }
+
+    public void quitarEspecialidad(Especialidad especialidad) {
+        especialidades.removeIf(de -> de.getEspecialidad().getId().equals(especialidad.getId()));
+    }
 
 }
