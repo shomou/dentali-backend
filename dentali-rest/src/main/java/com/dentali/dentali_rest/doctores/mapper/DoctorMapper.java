@@ -1,8 +1,10 @@
 package com.dentali.dentali_rest.doctores.mapper;
 
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
 import com.dentali.dentali_rest.doctores.Doctor;
@@ -30,4 +32,7 @@ public interface DoctorMapper {
     @Mapping (target = "especialidadId", source = "especialidad.id")
     @Mapping (target = "nombre", source = "especialidad.nombre")
     EspecialidadDoctorResponseDTO toEspecialidadResponse(DoctorEspecialidad doctorEspecialidad);
+
+    @InheritConfiguration(name = "toEntity")
+    void actualizarEntidad(DoctorRequestDTO dto, @MappingTarget Doctor doctor);
 }
