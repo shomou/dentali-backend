@@ -4,6 +4,11 @@ spring:
  application:
   name: dentali-rest
 
+ servlet:
+   multipart:
+     max-file-size: 5MB
+     max-request-size: 6MB 
+
  # Conexión a PostgreSQL (contenedor dentali-db)
  datasource:
   url: jdbc:postgresql://localhost:5440/dentali
@@ -15,3 +20,7 @@ spring:
   open-in-view: false
   hibernate:
     ddl-auto: validate
+
+dentali:
+ storage:
+  ruta-base: ${user.home}/dentali-uploads

@@ -27,6 +27,8 @@ public interface DoctorMapper {
     @Mapping (target = "especialidades", ignore = true )
     Doctor toEntity(DoctorRequestDTO dto);
 
+    @Mapping(target = "fotoUrl",
+         expression = "java(doctor.getFotoRuta() != null ? \"/api/doctores/\" + doctor.getId() + \"/foto\" : null)")
     DoctorResponseDTO toResponse(Doctor doctor);
 
     @Mapping (target = "especialidadId", source = "especialidad.id")

@@ -16,6 +16,7 @@ public record DoctorResponseDTO(
     String telefono,
     EstadoDoctor estado,
     List<EspecialidadDoctorResponseDTO> especialidades,
+    String fotoUrl,
     OffsetDateTime fechaCreacion
 ) {
 

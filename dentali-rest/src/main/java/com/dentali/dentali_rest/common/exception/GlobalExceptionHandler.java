@@ -9,12 +9,13 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
-@RestControllerAdvice 
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(RecursoNoEncontradoException.class) 
-    public ProblemDetail manejarNoEncontrado(RecursoNoEncontradoException ex){
+    @ExceptionHandler(RecursoNoEncontradoException.class)
+    public ProblemDetail manejarNoEncontrado(RecursoNoEncontradoException ex) {
         ProblemDetail problema = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
         problema.setTitle("Recurso no encontrado");
         return problema;
@@ -45,6 +46,14 @@ public class GlobalExceptionHandler {
         ProblemDetail problema = ProblemDetail.forStatusAndDetail(
                 HttpStatus.CONFLICT, "La operación viola una restricción de la base de datos");
         problema.setTitle("Conflicto de datos");
+        return problema;
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ProblemDetail manejarArchivoGrande(MaxUploadSizeExceededException ex) {
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONTENT_TOO_LARGE, "El archivo excede el tamaño máximo permitido (5 MB)");
+        problema.setTitle("Archivo demasiado grande");
         return problema;
     }
 

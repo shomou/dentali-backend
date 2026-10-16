@@ -9,6 +9,7 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import com.dentali.dentali_rest.common.exception.RecursoNoEncontradoException;
 import com.dentali.dentali_rest.common.exception.ReglaNegocioException;
 import com.dentali.dentali_rest.doctores.dto.DoctorRequestDTO;
@@ -17,6 +18,12 @@ import com.dentali.dentali_rest.doctores.dto.EspecialidadAsignadaRequestDTO;
 import com.dentali.dentali_rest.doctores.mapper.DoctorMapper;
 import com.dentali.dentali_rest.especialidades.Especialidad;
 import com.dentali.dentali_rest.especialidades.EspecialidadRepository;
+
+import com.dentali.dentali_rest.common.storage.FileStorageService;
+import org.springframework.core.io.Resource;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +35,7 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final EspecialidadRepository especialidadRepository;
     private final DoctorMapper doctorMapper;
+    private final FileStorageService fileStorageService;
 
     //----------------- Consultas -----------------//
     public List<DoctorResponseDTO> listarActivos(){
@@ -50,7 +58,7 @@ public class DoctorService {
 
         sincronizarEspecialidades(doctor, dto.especialidades());
 
-        return doctorMapper.toResponse(doctor);
+        return doctorMapper.toResponse(doctorRepository.save(doctor));
 
     }
 
@@ -76,12 +84,49 @@ public class DoctorService {
         Doctor doctor = buscarDoctor(id);
         
         if(doctor.getEstado() == EstadoDoctor.ACTIVO){
-            throw new ReglaNegocioException("El doctor con id " + "ya está activado");
+            throw new ReglaNegocioException("El doctor con id " + id + "ya está activado");
         }
         
         doctor.setEstado(EstadoDoctor.ACTIVO);
     }
 
+    @Transactional 
+    public DoctorResponseDTO actualizarFoto(Long id, MultipartFile archivo){
+        Doctor doctor = buscarDoctor(id);
+
+        String rutaAnterior = doctor.getFotoRuta();
+        String rutaNueva = fileStorageService.guardarImagen(archivo, "doctores/" + id);
+        doctor.setFotoRuta(rutaNueva);
+
+        FileStorageService almacenamiento = this.fileStorageService;
+
+        // El disco no es transaccional: decidims que borrar cuando sepamos como terminó la base de datos
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override 
+            public void afterCompletion(int status){
+                if(status == STATUS_COMMITTED){
+                    almacenamiento.eliminar(rutaAnterior);
+                }else{
+                    almacenamiento.eliminar(rutaNueva);
+                }
+
+            }
+        });
+
+        return doctorMapper.toResponse(doctor);
+    }
+
+
+    public Resource obtenerFoto(Long id){
+        Doctor doctor = buscarDoctor(id);
+        if(doctor.getFotoRuta() == null){
+            throw new RecursoNoEncontradoException("Foto del doctor", id);
+        }
+        return fileStorageService.cargar(doctor.getFotoRuta()).
+                orElseThrow(() -> new RecursoNoEncontradoException("Foto del Doctor", id));
+    }
+
+   
 
     //----------------- Helpers Privados -----------------//
     private Doctor buscarDoctor(Long id){
