@@ -30,7 +30,7 @@ public class DoctorService {
     private final DoctorMapper doctorMapper;
 
     //----------------- Consultas -----------------//
-    public List<DoctorResponseDTO> listarArchivos(){
+    public List<DoctorResponseDTO> listarActivos(){
         return doctorRepository.findByEstado(EstadoDoctor.ACTIVO)
             .stream()
             .map(doctorMapper::toResponse)
@@ -43,8 +43,8 @@ public class DoctorService {
 
     // ----------------- Escrituras -----------------//
     @Transactional
-    public DoctorResponseDTO crear(Long id, DoctorRequestDTO dto){
-        validarDuplicados(dto, id);
+    public DoctorResponseDTO crear(DoctorRequestDTO dto){
+        validarDuplicados(dto, null);
 
         Doctor doctor = doctorMapper.toEntity(dto);
 
@@ -53,6 +53,35 @@ public class DoctorService {
         return doctorMapper.toResponse(doctor);
 
     }
+
+    @Transactional 
+    public DoctorResponseDTO actualizar(Long id, DoctorRequestDTO dto){
+        Doctor doctor = buscarDoctor(id);
+        validarDuplicados(dto, id);
+
+        doctorMapper.actualizarEntidad(dto, doctor);
+        sincronizarEspecialidades(doctor, dto.especialidades());
+
+        return doctorMapper.toResponse(doctor);
+
+    }
+
+    @Transactional
+    public void desactivar(Long id){
+        buscarDoctor(id).setEstado(EstadoDoctor.DESACTIVADO);
+    }
+
+    @Transactional
+    public void reactivar(Long id){
+        Doctor doctor = buscarDoctor(id);
+        
+        if(doctor.getEstado() == EstadoDoctor.ACTIVO){
+            throw new ReglaNegocioException("El doctor con id " + "ya está activado");
+        }
+        
+        doctor.setEstado(EstadoDoctor.ACTIVO);
+    }
+
 
     //----------------- Helpers Privados -----------------//
     private Doctor buscarDoctor(Long id){
