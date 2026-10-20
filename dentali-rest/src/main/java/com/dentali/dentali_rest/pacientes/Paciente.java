@@ -1,5 +1,6 @@
 package com.dentali.dentali_rest.pacientes;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -47,6 +48,9 @@ public class Paciente {
     @JdbcTypeCode(SqlTypes.CHAR) 
     @Column(unique = true)
     private String curp;
+
+    @Column(name = "fecha_nacimiento", nullable = false)
+    private LocalDate fechaNacimiento;
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.CHAR)
