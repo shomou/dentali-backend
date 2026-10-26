@@ -29,6 +29,6 @@ public class EntidadFederativa {
 
     @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "abreviatura_curp", nullable = false, length = 2, unique = true)
-    private String abreviatura;
+    private String abreviaturaCurp;
 
 }

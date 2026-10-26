@@ -1,5 +1,7 @@
 package com.dentali.dentali_rest.pacientes.dto;
 
+import java.time.LocalDate;
+
 import com.dentali.dentali_rest.pacientes.Sexo;
 
 import jakarta.validation.constraints.Email;
@@ -28,7 +30,7 @@ public record PacienteRequestDTO(
 
     @NotNull(message = "La fecha de nacimiento es obligatoria")
     @PastOrPresent(message = "La fecha de nacimiento no puede estar en el futuro")
-    String fechaNacimiento,
+    LocalDate fechaNacimiento,
 
     @NotNull(message = "El sexo es obligatorio")
     Sexo sexo,

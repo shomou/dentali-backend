@@ -15,6 +15,8 @@ import java.util.UUID;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.dentali.dentali_rest.common.exception.ReglaNegocioException;
@@ -98,6 +100,27 @@ public class FileStorageService {
             throw new ReglaNegocioException("Ruta de archivo inválida");
         }
         return destino;
+    }
+
+
+    /**
+    * Programa la limpieza de archivos para cuando termine la transacción actual:
+    * si se confirma, borra el archivo anterior; si falla, borra el nuevo.
+    * Debe llamarse DENTRO de un método @Transactional.
+    */
+    public void limpiarAlTerminarTransaccion(String rutaAnterior, String rutaNueva) {
+        FileStorageService almacenamiento = this;
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+                if (status == STATUS_COMMITTED) {
+                    almacenamiento.eliminar(rutaAnterior);
+                } else {
+                    almacenamiento.eliminar(rutaNueva);
+                }
+            }
+        });
     }
 
 }

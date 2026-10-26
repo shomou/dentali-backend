@@ -20,6 +20,11 @@ spring:
   open-in-view: false
   hibernate:
     ddl-auto: validate
+ 
+ data:
+  web:
+   pageable:
+    max-page-size: 50
 
 dentali:
  storage:

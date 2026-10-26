@@ -4,8 +4,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -54,6 +56,24 @@ public class GlobalExceptionHandler {
         ProblemDetail problema = ProblemDetail.forStatusAndDetail(
                 HttpStatus.CONTENT_TOO_LARGE, "El archivo excede el tamaño máximo permitido (5 MB)");
         problema.setTitle("Archivo demasiado grande");
+        return problema;
+    }
+
+    @ExceptionHandler (HttpMessageNotReadableException.class)
+    public ProblemDetail manejarCuerpoIlegible(HttpMessageNotReadableException ex){
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(
+            HttpStatus.BAD_REQUEST,
+            "El cuerpo de la petición no es válido. Revisa el formato de fechas (AAAA-MM-DD) y los valores permitidos.");
+        problema.setTitle("Peticion mal formada");
+        return problema;
+    }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ProblemDetail manejarOrdenInvalido(PropertyReferenceException ex){
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(
+            HttpStatus.BAD_REQUEST,
+            "No se puede ordenar por '" + ex.getPropertyName() + "'");
+        problema.setTitle("Parámetro de orden inválido");
         return problema;
     }
 
