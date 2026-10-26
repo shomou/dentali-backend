@@ -9,6 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.dentali.dentali_rest.catalogos.EntidadFederativa;
 import com.dentali.dentali_rest.catalogos.EntidadFederativaRepository;
+import com.dentali.dentali_rest.catalogos.EstadoCivil;
+import com.dentali.dentali_rest.catalogos.EstadoCivilRepository;
 import com.dentali.dentali_rest.common.exception.RecursoNoEncontradoException;
 import com.dentali.dentali_rest.common.exception.ReglaNegocioException;
 import com.dentali.dentali_rest.common.storage.FileStorageService;
@@ -18,39 +20,42 @@ import com.dentali.dentali_rest.pacientes.mapper.PacienteMapper;
 
 import lombok.RequiredArgsConstructor;
 
-@Service 
-@RequiredArgsConstructor 
-@Transactional (readOnly = true)
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PacienteService {
 
     private final PacienteRepository pacienteRepository;
     private final EntidadFederativaRepository entidadFederativaRepository;
+    private final EstadoCivilRepository estadoCivilRepository;
     private final PacienteMapper pacienteMapper;
     private final FileStorageService fileStorageService;
 
     // ------------------ Consultas ---------------------
-    public Page<PacienteResponseDTO> buscar(String  texto, Pageable pageable){
+    public Page<PacienteResponseDTO> buscar(String texto, Pageable pageable) {
         Page<Paciente> pagina = (texto == null || texto.isBlank())
-        ? pacienteRepository.findByEstado(EstadoPaciente.ACTIVO, pageable)
-        : pacienteRepository.buscar(EstadoPaciente.ACTIVO, texto.trim(), pageable);
+                ? pacienteRepository.findByEstado(EstadoPaciente.ACTIVO, pageable)
+                : pacienteRepository.buscar(EstadoPaciente.ACTIVO, texto.trim(), pageable);
 
         return pagina.map(pacienteMapper::toResponse);
     }
 
-    public PacienteResponseDTO obtenerPorId(Long id){
+    public PacienteResponseDTO obtenerPorId(Long id) {
         return pacienteMapper.toResponse(buscarPaciente(id));
     }
 
     // --------------- Escrituras ---------------------
 
     @Transactional
-    public PacienteResponseDTO crear(PacienteRequestDTO dto){
+    public PacienteResponseDTO crear(PacienteRequestDTO dto) {
         EntidadFederativa entidad = validarYObtenerEntidad(dto, null);
 
         Paciente paciente = pacienteMapper.toEntity(dto);
         paciente.setEntidadNacimiento(entidad);
+        paciente.setEstadoCivil(buscarEstadoCivil(dto.estadoCivilId()));
+        paciente.setDomicilioEntidad(buscarEntidadOpcional(dto.domicilioEntidadId()));
 
-        return pacienteMapper.toResponse(pacienteRepository.save(paciente)); 
+        return pacienteMapper.toResponse(pacienteRepository.save(paciente));
     }
 
     @Transactional
@@ -60,15 +65,16 @@ public class PacienteService {
 
         pacienteMapper.actualizarEntidad(dto, paciente);
         paciente.setEntidadNacimiento(entidad);
+        paciente.setEstadoCivil(buscarEstadoCivil(dto.estadoCivilId()));
+        paciente.setDomicilioEntidad(buscarEntidadOpcional(dto.domicilioEntidadId()));
 
-        return pacienteMapper.toResponse(paciente);   // dirty checking
+        return pacienteMapper.toResponse(paciente); // dirty checking
     }
 
-    @Transactional 
-    public void desactivar(Long id){
+    @Transactional
+    public void desactivar(Long id) {
         buscarPaciente(id).setEstado(EstadoPaciente.DESACTIVADO);
     }
-
 
     @Transactional
     public void reactivar(Long id) {
@@ -80,7 +86,7 @@ public class PacienteService {
     }
 
     @Transactional
-    public PacienteResponseDTO actualizarFoto(Long id, MultipartFile archivo){
+    public PacienteResponseDTO actualizarFoto(Long id, MultipartFile archivo) {
         Paciente paciente = buscarPaciente(id);
 
         String rutaAnterior = paciente.getFotoRuta();
@@ -88,30 +94,30 @@ public class PacienteService {
         paciente.setFotoRuta(rutaNueva);
 
         fileStorageService.limpiarAlTerminarTransaccion(rutaAnterior, rutaNueva);
-        
+
         return pacienteMapper.toResponse(paciente);
     }
 
-    public Resource obtenerFoto(Long id){
+    public Resource obtenerFoto(Long id) {
         Paciente paciente = buscarPaciente(id);
 
-        if(paciente.getFotoRuta() == null){
+        if (paciente.getFotoRuta() == null) {
             throw new RecursoNoEncontradoException("Foto del paciente", id);
         }
 
         return fileStorageService.cargar(paciente.getFotoRuta())
-                .orElseThrow(()-> new RecursoNoEncontradoException("Foto del paciente", id));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Foto del paciente", id));
     }
 
     // --------------- Ayudantes privados ----------------
-    private Paciente buscarPaciente(Long id){
+    private Paciente buscarPaciente(Long id) {
         return pacienteRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Paciente", id));
     }
 
-    private EntidadFederativa validarYObtenerEntidad(PacienteRequestDTO dto, Long idActual){
+    private EntidadFederativa validarYObtenerEntidad(PacienteRequestDTO dto, Long idActual) {
         // 1. CURP única (solo si viene)
-        if(dto.curp() != null){
+        if (dto.curp() != null) {
             Long excluir = (idActual == null) ? 0L : idActual;
             if (pacienteRepository.existsByCurpAndIdNot(dto.curp(), excluir)) {
                 throw new ReglaNegocioException("Ya existe un paciente con la CURP " + dto.curp());
@@ -128,6 +134,22 @@ public class PacienteService {
                 dto.curp(), dto.fechaNacimiento(), dto.sexo(), entidad.getAbreviaturaCurp());
 
         return entidad;
+    }
+
+    private EstadoCivil buscarEstadoCivil(Short id) {
+        if (id == null) {
+            return null;
+        }
+        return estadoCivilRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Estado civil", id));
+    }
+
+    private EntidadFederativa buscarEntidadOpcional(Short id) {
+        if (id == null) {
+            return null;
+        }
+        return entidadFederativaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Entidad federativa", id));
     }
 
 }

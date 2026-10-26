@@ -3,7 +3,7 @@ package com.dentali.dentali_rest.pacientes.dto;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
-import com.dentali.dentali_rest.catalogos.dto.EntidadFederativaResponseDTO;
+import com.dentali.dentali_rest.catalogos.dto.CatalogoResponseDTO;
 import com.dentali.dentali_rest.pacientes.EstadoPaciente;
 import com.dentali.dentali_rest.pacientes.Sexo;
 
@@ -16,12 +16,24 @@ public record PacienteResponseDTO(
     LocalDate fechaNacimiento,
     Integer edad,
     Sexo sexo,
-    EntidadFederativaResponseDTO entidadNacimiento,
+    CatalogoResponseDTO entidadNacimiento,
     String email,
     String telefono,
     String fotoUrl,
     EstadoPaciente estado,
-    OffsetDateTime fechaCreacion
+    OffsetDateTime fechaCreacion,
+    CatalogoResponseDTO estadoCivil,
+    String ocupacion,
+    String religion,
+    String domicilioCalle,
+    String domicilioNumeroExterior,
+    String domicilioNumeroInterior,
+    String domicilioColonia,
+    String domicilioCodigoPostal,
+    String domicilioMunicipio,
+    CatalogoResponseDTO domicilioEntidad,
+    String contactoEmergenciaNombre,
+    String contactoEmergenciaTelefono
 ) {
 
 }

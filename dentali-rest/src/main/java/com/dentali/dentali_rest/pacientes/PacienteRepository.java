@@ -12,7 +12,7 @@ public interface PacienteRepository extends JpaRepository<Paciente, Long>{
     
     boolean existsByCurpAndIdNot(String curp,Long id);
     
-    @EntityGraph(attributePaths = "entidadNacimiento")    
+    @EntityGraph(attributePaths = {"entidadNacimiento", "estadoCivil", "domicilioEntidad"})
     Page<Paciente> findByEstado(EstadoPaciente estado, Pageable pageable);
 
     @Query("""

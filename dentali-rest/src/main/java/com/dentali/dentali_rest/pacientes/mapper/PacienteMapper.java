@@ -27,6 +27,8 @@ public interface PacienteMapper {
     @Mapping(target = "estado",ignore = true)
     @Mapping(target = "fechaCreacion",ignore = true)
     @Mapping(target = "fechaActualizacion",ignore = true)
+    @Mapping(target = "estadoCivil", ignore = true)
+    @Mapping(target = "domicilioEntidad", ignore = true)
     Paciente toEntity(PacienteRequestDTO dto);
 
     @InheritConfiguration (name = "toEntity")

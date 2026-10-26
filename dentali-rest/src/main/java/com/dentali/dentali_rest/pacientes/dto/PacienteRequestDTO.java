@@ -43,7 +43,41 @@ public record PacienteRequestDTO(
     String email,
 
     @Pattern(regexp = "^\\d{10}$", message = "El teléfono debe tener 10 dígitos")
-    String telefono
+    String telefono,
+
+    Short estadoCivilId,
+
+    @Size(max = 100)
+    String ocupacion,
+
+    @Size(max = 60)
+    String religion,
+
+    @Size(max = 150)
+    String domicilioCalle,
+
+    @Size(max = 10)
+    String domicilioNumeroExterior,
+
+    @Size(max = 10)
+    String domicilioNumeroInterior,
+
+    @Size(max = 100)
+    String domicilioColonia,
+
+    @Pattern(regexp = "^\\d{5}$", message = "El código postal debe tener 5 dígitos")
+    String domicilioCodigoPostal,
+
+    @Size(max = 100)
+    String domicilioMunicipio,
+
+    Short domicilioEntidadId,
+
+    @Size(max = 150)
+    String contactoEmergenciaNombre,
+
+    @Pattern(regexp = "^\\d{10}$", message = "El teléfono de emergencia debe tener 10 dígitos")
+    String contactoEmergenciaTelefono
 
     
 ) {
