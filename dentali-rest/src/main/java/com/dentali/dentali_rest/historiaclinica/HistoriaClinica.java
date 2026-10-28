@@ -8,7 +8,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.dentali.dentali_rest.doctores.Doctor;
 import com.dentali.dentali_rest.pacientes.Paciente;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,12 +18,27 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.MapKeyJoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import com.dentali.dentali_rest.catalogos.AuxiliarHigiene;
+import com.dentali.dentali_rest.catalogos.Enfermedad;
+import com.dentali.dentali_rest.catalogos.EstadoPeriodontal;
+import com.dentali.dentali_rest.catalogos.HallazgoAtm;
+import lombok.AccessLevel;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @Entity 
 @Table (name = "historias_clinicas")
@@ -148,6 +165,44 @@ public class HistoriaClinica {
     // --------------- Plan de tratamiento -----------
     @Column(name = "plan_tratamiento")
     private String planTratamiento;
+
+    // -------------- Seleccion múltiple ------------
+    /** sí/No por enfermedad. Sin Llave = no se preguntó. */
+    @ElementCollection 
+    @CollectionTable (name = "hc_antecedentes_personales",
+                    joinColumns = @JoinColumn(name="historia_clinica_id"))
+    @MapKeyJoinColumn (name = "enfermedad_id")
+    @Column (name = "padece", nullable = false)
+    @Setter(AccessLevel.NONE)
+    private Map<Enfermedad, Boolean> antecedentesPersonales = new HashMap<>();
+
+    @ElementCollection 
+    @CollectionTable (name = "hc_antecedentes_heredofamiliares",
+                    joinColumns = @JoinColumn(name="historia_clinica_id"))
+    @Setter(AccessLevel.NONE)
+    private Set<AntecedenteHeredofamiliar> antecedentesHeredoFamiliares = new HashSet<>(); 
+
+    @ManyToMany
+    @JoinTable(name = "hc_auxiliares_higiene",
+               joinColumns = @JoinColumn(name = "historia_clinica_id"),
+               inverseJoinColumns = @JoinColumn(name = "auxiliar_higiene_id"))
+    @Setter(AccessLevel.NONE)
+    private Set<AuxiliarHigiene> auxiliaresHigiene = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(name = "hc_hallazgos_atm",
+               joinColumns = @JoinColumn(name = "historia_clinica_id"),
+               inverseJoinColumns = @JoinColumn(name = "hallazgo_atm_id"))
+    @Setter(AccessLevel.NONE)
+    private Set<HallazgoAtm> hallazgosAtm = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(name = "hc_estados_periodontales",
+               joinColumns = @JoinColumn(name = "historia_clinica_id"),
+               inverseJoinColumns = @JoinColumn(name = "estado_periodontal_id"))
+    @Setter(AccessLevel.NONE)
+    private Set<EstadoPeriodontal> estadosPeriodontales = new HashSet<>();
+
 
     public ExploracionTejidosBlandos getExploracion(){
         if(exploracion == null){
