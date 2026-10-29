@@ -1,6 +1,6 @@
 package com.dentali.dentali_rest.catalogos;
 
-import org.springframework.data.annotation.Immutable;
+import org.hibernate.annotations.Immutable;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,6 +26,6 @@ public class Enfermedad {
     private boolean aplicaPersonal;
 
     @Column(name = "aplica_heredofamiliar", nullable = false)
-    private boolean aplicaHeredoFamiliar;
+    private boolean aplicaHeredofamiliar;
 
 }

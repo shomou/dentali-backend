@@ -18,7 +18,7 @@ public class EstadoPeriodontal {
     @Id 
     private Short id;
 
-    @Column(nullable = false, length = 80, unique = true)
+    @Column(nullable = false, length = 40, unique = true)
     private String nombre;
 
 }

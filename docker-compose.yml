@@ -2,6 +2,7 @@ services:
  db:
   image: postgres:18
   container_name: dentali_db
+  restart: unless-stopped
   environment:
    POSTGRES_DB: dentali
    POSTGRES_USER: dentali

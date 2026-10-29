@@ -16,7 +16,7 @@ public class ExploracionTejidosBlandos {
     private String cara;
 
     @Column(name = "exploracion_cuello")
-    private String cuellos;
+    private String cuello;
 
     @Column(name = "exploracion_labios")
     private String labios;

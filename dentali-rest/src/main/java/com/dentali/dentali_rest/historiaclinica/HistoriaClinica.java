@@ -67,14 +67,14 @@ public class HistoriaClinica {
     private OffsetDateTime fechaActualizacion;
 
     @Column (name = "grupo_sanguineo", length = 3)
-    private GrupoSanguineo grupoSanguineo; //usa elñ convertidor autoApply
+    private GrupoSanguineo grupoSanguineo; // usa el convertidor autoApply
 
     // --------- Antecedentes personales patológicos  ----------------
     @Column (name = "enfermedades_ultimo_anio")
     private String enfermedadesUltimoAnio;
 
     @Column (name = "antecedente_patologico_otro")
-    private String antecedentesPatologicoOtro;
+    private String antecedentePatologicoOtro;
 
     @Column (name = "alergico_medicamentos")
     private Boolean alergicoMedicamentos;
@@ -134,7 +134,7 @@ public class HistoriaClinica {
     private Boolean fuma;
 
     @Column (name = "fuma_frecuencia", length = 100)
-    private String fumaFrecuancia;
+    private String fumaFrecuencia;
 
     private Boolean alcohol;
 
@@ -159,7 +159,7 @@ public class HistoriaClinica {
     private ExploracionTejidosBlandos exploracion;
 
     @Column(name = "atm_observaciones")
-    private String observaciones;
+    private String atmObservaciones;
 
     // --------------- Plan de tratamiento -----------
     @Column(name = "plan_tratamiento")
@@ -179,7 +179,7 @@ public class HistoriaClinica {
     @CollectionTable (name = "hc_antecedentes_heredofamiliares",
                     joinColumns = @JoinColumn(name="historia_clinica_id"))
     @Setter(AccessLevel.NONE)
-    private Set<AntecedenteHeredofamiliar> antecedentesHeredoFamiliares = new HashSet<>(); 
+    private Set<AntecedenteHeredofamiliar> antecedentesHeredofamiliares = new HashSet<>(); 
 
     @ManyToMany
     @JoinTable(name = "hc_auxiliares_higiene",
