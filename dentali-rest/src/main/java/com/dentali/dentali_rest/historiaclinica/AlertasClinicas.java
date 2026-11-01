@@ -36,6 +36,7 @@ public final class AlertasClinicas {
                     ? "Embarazo"
                     : "Embarazo (" + h.getSemanasGestacion() + " semanas)");
         }
+        
 
         // Ordenadas por id del catálogo: el HashMap no garantiza orden y las alertas
         // saldrían distintas en cada petición (y los tests serían intermitentes).

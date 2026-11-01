@@ -20,6 +20,9 @@ spring:
   open-in-view: false
   hibernate:
     ddl-auto: validate
+  properties:
+   hibernate:
+    default_batch_fetch_size: 16
  
  data:
   web:
@@ -29,3 +32,7 @@ spring:
 dentali:
  storage:
   ruta-base: ${user.home}/dentali-uploads
+
+logging:
+ level:
+  org.hibernate.SQL: debug
