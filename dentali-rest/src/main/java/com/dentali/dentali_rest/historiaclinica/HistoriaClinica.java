@@ -1,5 +1,6 @@
 package com.dentali.dentali_rest.historiaclinica;
 
+import java.util.LinkedHashSet;
 import java.time.OffsetDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,6 +24,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapKeyJoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -185,6 +187,7 @@ public class HistoriaClinica {
     @JoinTable(name = "hc_auxiliares_higiene",
                joinColumns = @JoinColumn(name = "historia_clinica_id"),
                inverseJoinColumns = @JoinColumn(name = "auxiliar_higiene_id"))
+    @OrderBy("id")
     @Setter(AccessLevel.NONE)
     private Set<AuxiliarHigiene> auxiliaresHigiene = new HashSet<>();
 
@@ -192,6 +195,7 @@ public class HistoriaClinica {
     @JoinTable(name = "hc_hallazgos_atm",
                joinColumns = @JoinColumn(name = "historia_clinica_id"),
                inverseJoinColumns = @JoinColumn(name = "hallazgo_atm_id"))
+    @OrderBy("id")
     @Setter(AccessLevel.NONE)
     private Set<HallazgoAtm> hallazgosAtm = new HashSet<>();
 
@@ -199,6 +203,7 @@ public class HistoriaClinica {
     @JoinTable(name = "hc_estados_periodontales",
                joinColumns = @JoinColumn(name = "historia_clinica_id"),
                inverseJoinColumns = @JoinColumn(name = "estado_periodontal_id"))
+    @OrderBy("id")
     @Setter(AccessLevel.NONE)
     private Set<EstadoPeriodontal> estadosPeriodontales = new HashSet<>();
 

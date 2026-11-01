@@ -1,6 +1,7 @@
 package com.dentali.dentali_rest.historiaclinica;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +110,7 @@ public class HistoriaClinicaService {
             llenarColecciones(historia, dto);
 
             historiaClinicaRepository.flush();
-            
+
             return historiaClinicaMapper.toResponse(historia);
     }
 
@@ -211,7 +212,9 @@ public class HistoriaClinicaService {
             encontrados.forEach(t -> faltantes.remove(obtenerId.apply(t)));
             throw new RecursoNoEncontradoException(recurso + " no existe: ids " + faltantes);
         }
-        return encontrados;
+        return encontrados.stream()
+                .sorted(Comparator.comparing(obtenerId))
+                .toList();
     }
 
     private <T> Map<Short, T> porId(List<T> lista, Function<T, Short> obtenerId) {
