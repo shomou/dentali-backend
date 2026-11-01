@@ -65,7 +65,7 @@ public record HistoriaClinicaRequestDTO(
 
     // ───── Selección múltiple (ids de catálogos) ─────
     Map<Short, Boolean> antecedentesPersonales,          // enfermedadId → padece
-    List<@Valid HeredoFamiliarRequestDTO> antecedentesHeredofamiliares,
+    List<@Valid HeredofamiliarRequestDTO> antecedentesHeredofamiliares,
     Set<Short> auxiliaresHigieneIds,
     Set<Short> hallazgosAtmIds,
     Set<Short> estadosPeriodontalesIds

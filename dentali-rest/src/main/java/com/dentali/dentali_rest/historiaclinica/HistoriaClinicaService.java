@@ -29,7 +29,7 @@ import com.dentali.dentali_rest.common.exception.ReglaNegocioException;
 import com.dentali.dentali_rest.doctores.Doctor;
 import com.dentali.dentali_rest.doctores.DoctorRepository;
 import com.dentali.dentali_rest.doctores.EstadoDoctor;
-import com.dentali.dentali_rest.historiaclinica.dto.HeredoFamiliarRequestDTO;
+import com.dentali.dentali_rest.historiaclinica.dto.HeredofamiliarRequestDTO;
 import com.dentali.dentali_rest.historiaclinica.dto.HistoriaClinicaRequestDTO;
 import com.dentali.dentali_rest.historiaclinica.dto.HistoriaClinicaResponseDTO;
 import com.dentali.dentali_rest.historiaclinica.mapper.HistoriaClinicaMapper;
@@ -157,7 +157,7 @@ public class HistoriaClinicaService {
         }
 
         // Heredofamiliares: pares (enfermedad, parentesco)
-        List<HeredoFamiliarRequestDTO> heredo = nuloAVacio(dto.antecedentesHeredofamiliares());
+        List<HeredofamiliarRequestDTO> heredo = nuloAVacio(dto.antecedentesHeredofamiliares());
         Map<Short, Enfermedad> enfermedades = porId(buscarTodos(enfermedadRepository,
                 heredo.stream().map(h -> h.enfermedadId()).collect(Collectors.toSet()),
                 Enfermedad::getId, "Enfermedad"), Enfermedad::getId);
@@ -166,7 +166,7 @@ public class HistoriaClinicaService {
                 Parentesco::getId, "Parentesco"), Parentesco::getId);
         
         
-        for (HeredoFamiliarRequestDTO h : heredo) {
+        for (HeredofamiliarRequestDTO h : heredo) {
             Enfermedad e = enfermedades.get(h.enfermedadId());
             if (!e.isAplicaHeredofamiliar()) {
                 throw new ReglaNegocioException("'" + e.getNombre() + "' no aplica como antecedente heredofamiliar");
