@@ -189,7 +189,7 @@ public class HistoriaClinica {
                inverseJoinColumns = @JoinColumn(name = "auxiliar_higiene_id"))
     @OrderBy("id")
     @Setter(AccessLevel.NONE)
-    private Set<AuxiliarHigiene> auxiliaresHigiene = new HashSet<>();
+    private Set<AuxiliarHigiene> auxiliaresHigiene = new LinkedHashSet<>();
 
     @ManyToMany
     @JoinTable(name = "hc_hallazgos_atm",
@@ -197,7 +197,7 @@ public class HistoriaClinica {
                inverseJoinColumns = @JoinColumn(name = "hallazgo_atm_id"))
     @OrderBy("id")
     @Setter(AccessLevel.NONE)
-    private Set<HallazgoAtm> hallazgosAtm = new HashSet<>();
+    private Set<HallazgoAtm> hallazgosAtm = new LinkedHashSet<>();
 
     @ManyToMany
     @JoinTable(name = "hc_estados_periodontales",
@@ -205,7 +205,7 @@ public class HistoriaClinica {
                inverseJoinColumns = @JoinColumn(name = "estado_periodontal_id"))
     @OrderBy("id")
     @Setter(AccessLevel.NONE)
-    private Set<EstadoPeriodontal> estadosPeriodontales = new HashSet<>();
+    private Set<EstadoPeriodontal> estadosPeriodontales = new LinkedHashSet<>();
 
 
     public ExploracionTejidosBlandos getExploracion(){
