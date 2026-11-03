@@ -13,6 +13,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @RestControllerAdvice
@@ -76,6 +77,14 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST,
                 "No se puede ordenar por '" + ex.getPropertyName() + "'");
         problema.setTitle("Parámetro de orden inválido");
+        return problema;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ProblemDetail manejarTipoInvalido(MethodArgumentTypeMismatchException ex) {
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
+                "El valor '" + ex.getValue() + "' no es válido para '" + ex.getName() + "'");
+        problema.setTitle("Parámetro inválido");
         return problema;
     }
 
