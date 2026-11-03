@@ -14,9 +14,11 @@ import org.mapstruct.ReportingPolicy;
 
 import com.dentali.dentali_rest.consultas.CalculadoraImc;
 import com.dentali.dentali_rest.consultas.Consulta;
+import com.dentali.dentali_rest.consultas.NotaAclaratoria;
 import com.dentali.dentali_rest.consultas.SignosVitales;
 import com.dentali.dentali_rest.consultas.dto.ConsultaRequestDTO;
 import com.dentali.dentali_rest.consultas.dto.ConsultaResponseDTO;
+import com.dentali.dentali_rest.consultas.dto.NotaAclaratoriaResponseDTO;
 import com.dentali.dentali_rest.doctores.Doctor;
 
 @Mapper (componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
@@ -39,6 +41,11 @@ public interface ConsultaMapper {
     @Mapping (target = "imc", source = "signosVitales", qualifiedByName = "calcularImc")
     @Mapping (target = "firmada", expression = "java(consulta.estaFirmada())")
     ConsultaResponseDTO toResponse(Consulta consulta);
+
+    @Mapping (target = "consultaId", source = "consulta.id")
+    @Mapping (target = "doctorId", source = "doctor.id")
+    @Mapping (target = "doctorNombre", source = "doctor", qualifiedByName = "nombreCompleto")
+    NotaAclaratoriaResponseDTO toResponse (NotaAclaratoria nota);
 
     // ---------- Ayudantes -----------
     @Named ("nombreCompleto")

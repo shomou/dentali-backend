@@ -1,6 +1,7 @@
 package com.dentali.dentali_rest.consultas;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +12,8 @@ import com.dentali.dentali_rest.common.exception.RecursoNoEncontradoException;
 import com.dentali.dentali_rest.common.exception.ReglaNegocioException;
 import com.dentali.dentali_rest.consultas.dto.ConsultaRequestDTO;
 import com.dentali.dentali_rest.consultas.dto.ConsultaResponseDTO;
+import com.dentali.dentali_rest.consultas.dto.NotaAclaratoriaRequestDTO;
+import com.dentali.dentali_rest.consultas.dto.NotaAclaratoriaResponseDTO;
 import com.dentali.dentali_rest.consultas.mapper.ConsultaMapper;
 import com.dentali.dentali_rest.doctores.Doctor;
 import com.dentali.dentali_rest.doctores.DoctorRepository;
@@ -29,6 +32,7 @@ public class ConsultaService {
     private final HistoriaClinicaRepository historiaClinicaRepository;
     private final DoctorRepository doctorRepository;
     private final ConsultaMapper consultaMapper;
+    private final NotaAclaratoriaRepository notaAclaratoriaRepository;
 
     // --------- Consultas ---------
     public Page<ConsultaResponseDTO> listar(Long pacienteId, Pageable pageable){
@@ -39,6 +43,15 @@ public class ConsultaService {
 
     public ConsultaResponseDTO obtener(Long consultaId) {
         return consultaMapper.toResponse(buscarConsulta(consultaId));
+    }
+
+    // ---------- Notas aclaratorias ----------
+    public List<NotaAclaratoriaResponseDTO> listarNotas(Long consultaId) {
+        buscarConsulta(consultaId);                       // 404 si la consulta no existe
+        return notaAclaratoriaRepository.findByConsultaIdOrderByFechaCreacionAsc(consultaId)
+                .stream()
+                .map(consultaMapper::toResponse)
+                .toList();
     }
 
     // --------- Escritura ---------
@@ -90,6 +103,19 @@ public class ConsultaService {
         consulta.firmar();
         consultaRepository.flush(); // Asegura que los cambios se guarden antes de mapear a DTO
         return consultaMapper.toResponse(consulta);
+    }
+
+    @Transactional
+    public NotaAclaratoriaResponseDTO agregarNota(Long consultaId, NotaAclaratoriaRequestDTO dto) {
+        Consulta consulta = buscarConsulta(consultaId);
+        if (!consulta.estaFirmada()) {
+            throw new ReglaNegocioException(
+                    "La consulta con id " + consultaId + " es un borrador: edítala directamente en lugar de agregar una nota aclaratoria");
+        }
+        Doctor doctor = buscarDoctorActivo(dto.doctorId());
+
+        NotaAclaratoria nota = new NotaAclaratoria(consulta, doctor, dto.texto().strip());
+        return consultaMapper.toResponse(notaAclaratoriaRepository.save(nota));
     }
 
     // --------- Ayudantes---------
