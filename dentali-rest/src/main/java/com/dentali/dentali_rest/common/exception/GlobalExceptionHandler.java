@@ -1,8 +1,10 @@
 package com.dentali.dentali_rest.common.exception;
 
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
@@ -59,22 +61,63 @@ public class GlobalExceptionHandler {
         return problema;
     }
 
-    @ExceptionHandler (HttpMessageNotReadableException.class)
-    public ProblemDetail manejarCuerpoIlegible(HttpMessageNotReadableException ex){
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ProblemDetail manejarCuerpoIlegible(HttpMessageNotReadableException ex) {
         ProblemDetail problema = ProblemDetail.forStatusAndDetail(
-            HttpStatus.BAD_REQUEST,
-            "El cuerpo de la petición no es válido. Revisa el formato de fechas (AAAA-MM-DD) y los valores permitidos.");
+                HttpStatus.BAD_REQUEST,
+                "El cuerpo de la petición no es válido. Revisa el formato de fechas (AAAA-MM-DD) y los valores permitidos.");
         problema.setTitle("Peticion mal formada");
         return problema;
     }
 
     @ExceptionHandler(PropertyReferenceException.class)
-    public ProblemDetail manejarOrdenInvalido(PropertyReferenceException ex){
+    public ProblemDetail manejarOrdenInvalido(PropertyReferenceException ex) {
         ProblemDetail problema = ProblemDetail.forStatusAndDetail(
-            HttpStatus.BAD_REQUEST,
-            "No se puede ordenar por '" + ex.getPropertyName() + "'");
+                HttpStatus.BAD_REQUEST,
+                "No se puede ordenar por '" + ex.getPropertyName() + "'");
         problema.setTitle("Parámetro de orden inválido");
         return problema;
+    }
+
+    /**
+     * Errores lanzados por triggers de PostgreSQL (RAISE EXCEPTION … ERRCODE
+     * 'P0001'):
+     * consultas firmadas y notas aclaratorias. Son reglas de negocio → 409.
+     */
+    @ExceptionHandler(DataAccessException.class)
+    public ProblemDetail manejarAccesoDatos(DataAccessException ex) {
+        SQLException sql = buscarSqlException(ex);
+        if (sql != null && "P0001".equals(sql.getSQLState())) {
+            ProblemDetail problema = ProblemDetail.forStatusAndDetail(
+                    HttpStatus.CONFLICT, limpiarMensajePostgres(sql.getMessage()));
+            problema.setTitle("Conflicto con una regla de negocio");
+            return problema;
+        }
+        throw ex; // cualquier otro error de BD no es nuestro caso: que siga su camino
+    }
+
+    /** Recorre los "Caused by" hasta encontrar la SQLException original. */
+    private SQLException buscarSqlException(Throwable ex) {
+        Throwable actual = ex;
+        while (actual != null) {
+            if (actual instanceof SQLException sql) {
+                return sql;
+            }
+            actual = actual.getCause();
+        }
+        return null;
+    }
+
+    /**
+     * "ERROR: La consulta 5 está firmada…\n Where: PL/pgSQL…" → "La consulta 5 está
+     * firmada…"
+     */
+    private String limpiarMensajePostgres(String mensaje) {
+        if (mensaje == null) {
+            return "La operación viola una regla del expediente";
+        }
+        String primeraLinea = mensaje.lines().findFirst().orElse(mensaje);
+        return primeraLinea.replaceFirst("^ERROR:\\s*", "");
     }
 
 }
